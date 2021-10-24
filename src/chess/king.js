@@ -7,8 +7,12 @@ class King {
     this.y = y;
   }
 
+  setPos (x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  
   checkMove (board, x, y) {
-    this.moved = true;
     if (this.x == x) {
       if (this.checkVertical(board, x, y)) return true;
     } else if (this.y == y) {
@@ -17,7 +21,6 @@ class King {
       if (this.checkDiagonal(board, x, y)) return true;
     }
 
-    this.moved = false;
     return false;
   }
 
@@ -27,13 +30,9 @@ class King {
     if (x > this.x) signX = 1;
     if (y > this.y) signY = 1;
 
-    var obj = board.objectAtIndex(x, y);
+    var obj = board.board[y][x];
     if ((this.x + signX == x) && (this.y + signY == y)) {
-        if (obj == null) {
-          return true;
-        } else {
-          if (obj.suit != this.suit) return true;
-        }
+      if (obj == 0 || obj.suit != this.suit) return true;
     }
 
     return false;
@@ -43,13 +42,9 @@ class King {
     var signY = -1;
     if (y > this.y) signY = 1;
 
-    var obj = board.objectAtIndex(x, y);
+    var obj = board.board[y][x];
     if (this.y + signY == y) {
-      if (obj == null) {
-        return true;
-      } else {
-        if (obj.suit != this.suit) return true;
-      }
+      if (obj == 0 || obj.suit != this.suit) return true;
     }
 
     return false;
@@ -59,18 +54,44 @@ class King {
     var signX = -1;
     if (x > this.x) signX = 1;
 
-    var obj = board.objectAtIndex(x, y);
+    var obj = board.board[y][x];
     if (this.x + signX == x) {
-      if (obj == null) {
-        return true;
-      } else {
-        if (obj.suit != this.suit) return true;
-      }
+      if (obj == null || obj.suit != this.suit) return true;
     }
 
     return false;
   }
 
+  getPaths (board) {
+    let paths = [];
+    let validatePos = [ // [row, col]
+			[0, 1],
+			[0, -1],
+			[1, 0],
+			[-1, 0],
+			[1, 1],
+			[1, -1],
+			[-1, 1],
+			[-1, -1],
+		]
+
+    for (let j = 0; j < validatePos.length; j++) {
+			const elem = validatePos[j];
+
+      let newRow = elem[0] + this.y;
+      let newCol = elem[1] + this.x;
+
+      if (!board.inBounds(newRow, newCol)) continue;
+
+      if (board.board[newRow][newCol] != 0 && board.board[newRow][newCol].suit == this.suit) continue;
+
+      if (board.board[newRow][newCol] == 0 || board.board[newRow][newCol].suit != this.suit) {
+        paths.push([newRow, newCol]);
+      }
+		}
+
+    return paths
+  }
 }
 
 export {
