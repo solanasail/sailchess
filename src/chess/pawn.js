@@ -4,11 +4,15 @@ class Pawn {
     this.suit = suit;
     this.x = x; // col
     this.y = y; // row
+
+    this.movement = 0;
   }
 
   setPos (x, y) {
     this.x = x;
     this.y = y;
+
+    this.movement++;
   }
   
   checkMove (board, x, y) {
@@ -44,8 +48,8 @@ class Pawn {
       }
     }
 
-    if (this.y + direction*2 == y) {
-      if (board.isPathEmpty(board.board, this.x, this.y, x, y) && board.board[y][x] == 0) {
+    if (this.movement == 0 && this.y + direction*2 == y) {
+      if (board.board[this.y + direction][x] == 0 && board.board[y][x] == 0) {
         return true;
       }
     }
@@ -57,10 +61,14 @@ class Pawn {
     let paths = [];
     let validatePos = [ // [row, col]
       [1, 0],
-      [2, 0],
       [1, 1],
       [1, -1]
     ];
+
+    if (this.movement == 0) {
+      validatePos.push([2, 0]);
+    }
+
     let dir = (this.suit == 'w') ? -1 : 1;
 
     for (let i = 0; i < validatePos.length; i++) {

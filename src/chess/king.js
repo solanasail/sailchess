@@ -5,11 +5,15 @@ class King {
     this.suit = suit;
     this.x = x;
     this.y = y;
+
+    this.movement = 0;
   }
 
   setPos (x, y) {
     this.x = x;
     this.y = y;
+
+    this.movement++;
   }
   
   checkMove (board, x, y) {

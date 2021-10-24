@@ -27,8 +27,8 @@ class Board {
 		this.board[0][0] = new Rook("b", 0, 0);
 		this.board[0][1] = new Knight("b", 1, 0);
 		this.board[0][2] = new Bishop("b", 2, 0);
-		this.board[0][3] = new Queen("b", 3, 0);
-		this.board[0][4] = new King("b", 4, 0);
+		this.board[0][4] = new Queen("b", 4, 0);
+		this.board[0][3] = new King("b", 3, 0);
 		this.board[0][7] = new Rook("b", 7, 0);
 		this.board[0][6] = new Knight("b", 6, 0);
 		this.board[0][5] = new Bishop("b", 5, 0);

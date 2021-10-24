@@ -9,6 +9,7 @@ class DiscordChess {
   constructor(settings) {
     this.settings = settings;
     this.board = null;
+    this.autoTurnInterval = null;
   }
 
   createGame = async (message) => {
@@ -45,8 +46,8 @@ class DiscordChess {
     ];
 
     // set auto turn interval
-    let autoTurnInterval = setInterval(() => {
-      this.autoTurn(players);
+    this.autoTurnInterval = setInterval(() => {
+      this.autoTurn(players, true);
     }, 60000);
 
     for (const [index, player] of players.entries()) {
@@ -114,7 +115,8 @@ class DiscordChess {
           files: [await this.board.printBoard(players[opponentIndex].suit)],
         });
 
-        if (!this.board.isKingSafe(this.board.board, (player.suit == 'w') ? 'b' : 'w')) {
+        let isSafeStatus = this.board.isKingSafe(this.board.board, (player.suit == 'w') ? 'b' : 'w');
+        if (!isSafeStatus) {
           let color = (player.suit == 'w') ? 'Black' : 'White'
           await player.member.send({
             embeds: [new MessageEmbed()
@@ -134,7 +136,7 @@ class DiscordChess {
         }
 
         if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
-          clearInterval(autoTurnInterval);
+          clearInterval(this.autoTurnInterval);
 
           await player.member.send({
             embeds: [new MessageEmbed()
@@ -156,15 +158,15 @@ class DiscordChess {
 
           player.collector.stop();
           players[opponentIndex].collector.stop();
-          
+
           return;
         }
 
-        clearInterval(autoTurnInterval);
+        clearInterval(this.autoTurnInterval);
         // auto change the turn
-        autoTurnInterval = setInterval(() => {
-          this.autoTurn(players);
-        }, 60000);
+        this.autoTurnInterval = setInterval(() => {
+          this.autoTurn(players, isSafeStatus);
+        }, (isSafeStatus) ? 60000 : 180000);
 
         player.isTurn = false;
         players[opponentIndex].isTurn = true;
@@ -192,7 +194,37 @@ class DiscordChess {
   }
 
   // auto change the turn
-  autoTurn = (players) => {
+  autoTurn = (players, isSafeStatus) => {
+    if (!isSafeStatus) {
+      clearInterval(this.autoTurnInterval);
+
+      for (const elem of players) {
+        elem.collector.stop();
+
+        if (elem.isTurn) {
+          elem.member.send({
+            embeds: [new MessageEmbed()
+              .setTitle('Game Over')
+              .setColor(this.settings.dangerColor)
+              .setDescription(`You lose`)]
+          }).then(msg => {
+            setTimeout(() => msg.delete(), 5000)
+          }).catch(error => { console.log(`Cannot send messages`) });
+        } else {
+          elem.member.send({
+            embeds: [new MessageEmbed()
+              .setTitle('Game Over')
+              .setColor(this.settings.infoColor)
+              .setDescription(`You win`)]
+          }).then(msg => {
+            setTimeout(() => msg.delete(), 5000)
+          }).catch(error => { console.log(`Cannot send messages`) });
+        }
+      }
+
+      return;
+    }
+
     players[0].isTurn = !players[0].isTurn;
     players[1].isTurn = !players[1].isTurn;
 
