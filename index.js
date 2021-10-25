@@ -1,6 +1,7 @@
 import { Client, MessageEmbed } from 'discord.js'
 
 import { DiscordChess } from "./src/chess/index.js"
+import Room from './src/chess/room.js'
 
 import {  
   CLUSTERS, 
@@ -78,6 +79,39 @@ client.on('messageCreate', async (message) => {
 
     const challenger = message.member; // Define the challenger
     const opponent = message.mentions.members.first(); // Get and define the opponent
+
+    // If there is no opponent, require them to define one
+		if (!opponent) {
+      return await message.channel.send({embeds: [new MessageEmbed()
+        .setColor(dangerColor)
+        .setDescription(`Please mention another SAILOR to play the chess!`)]
+      }).catch(error => {
+        console.log(`Cannot send messages`);
+      });
+		}
+
+    // Check for prevention against challenging yourself
+		if (challenger.id === opponent.id) {
+      return await message.channel.send({embeds: [new MessageEmbed()
+        .setColor(dangerColor)
+        .setDescription(`Please challenge someone other than yourself!`)]
+      }).catch(error => {
+        console.log(`Cannot send messages`);
+      });
+		}
+
+    if (await Room.checkIsPlaying(challenger.id)) { // check the user is playing
+      return await message.channel.send({embeds: [new MessageEmbed()
+        .setColor(dangerColor)
+        .setDescription(`You are still playing the game`)]
+      }).catch(error => {
+        console.log(`Cannot send messages`);
+      });
+    }
+
+    // set the room
+    await Room.setRoom(challenger.id, opponent.id);
+
     await message.channel.send({
       embeds: [ 
         new MessageEmbed()
@@ -96,6 +130,45 @@ client.on('messageCreate', async (message) => {
     
     const challenger = message.mentions.members.first(); // Define the challenger
     const opponent = message.member; // Get and define the opponent 
+
+    // If there is no challenger, require them to define one
+		if (!challenger) {
+      return await message.channel.send({embeds: [new MessageEmbed()
+        .setColor(dangerColor)
+        .setDescription(`Please mention another SAILOR to play chess!`)]
+      }).catch(error => {
+        console.log(`Cannot send messages`);
+      });
+		}
+
+		// Check for prevention against challenging yourself
+		if (challenger.id === opponent.id) {
+      return await message.channel.send({embeds: [new MessageEmbed()
+        .setColor(dangerColor)
+        .setDescription(`Please challenge someone other than yourself!`)]
+      }).catch(error => {
+        console.log(`Cannot send messages`);
+      });
+		}
+
+    if (await Room.checkIsPlaying(opponent.id)) { // check the user is playing
+      return await message.channel.send({embeds: [new MessageEmbed()
+        .setColor(dangerColor)
+        .setDescription(`You are still playing the game`)]
+      }).catch(error => {
+        console.log(`Cannot send messages`);
+      });
+    }
+
+    if (!await Room.checkCanAccept(challenger.id, opponent.id)) {
+      return await message.channel.send({embeds: [new MessageEmbed()
+        .setColor(dangerColor)
+        .setDescription(`You can't play with ${challenger.user}`)]}).catch(error => {
+          console.log(`Cannot send messages`);
+        });
+    }
+
+    await Room.joinRoom(challenger.id, opponent.id);
 
     await ChessGame.createGame(message); 
     return;
