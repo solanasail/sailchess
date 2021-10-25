@@ -10,6 +10,8 @@ class DiscordChess {
     this.settings = settings;
     this.board = null;
     this.autoTurnInterval = null;
+
+    this.autoTurnCount = 0;
   }
 
   createGame = async (message) => {
@@ -30,6 +32,7 @@ class DiscordChess {
           gsail: 0,
         },
         suit: 'b',
+        movement: 0,
       },
       // define the opponent
       {
@@ -42,13 +45,16 @@ class DiscordChess {
           gsail: 0,
         },
         suit: 'w',
+        movement: 0,
       },
     ];
 
     // set auto turn interval
     this.autoTurnInterval = setInterval(() => {
       this.autoTurn(players, true);
-    }, 60000);
+    }, 90000);
+
+    this.autoTurnCount = 0;
 
     for (const [index, player] of players.entries()) {
       const boardMsg = await player.member.send({
@@ -144,7 +150,7 @@ class DiscordChess {
               .setColor(this.settings.infoColor)
               .setDescription(`You win`)]
           }).then(msg => {
-            setTimeout(() => msg.delete(), 5000)
+            setTimeout(() => msg.delete(), 10000)
           }).catch(error => { console.log(`Cannot send messages`) });
 
           await players[opponentIndex].member.send({
@@ -153,7 +159,7 @@ class DiscordChess {
               .setColor(this.settings.dangerColor)
               .setDescription(`You lose`)]
           }).then(msg => {
-            setTimeout(() => msg.delete(), 5000)
+            setTimeout(() => msg.delete(), 10000)
           }).catch(error => { console.log(`Cannot send messages`) });
 
           player.collector.stop();
@@ -162,14 +168,36 @@ class DiscordChess {
           return;
         }
 
+        player.movement++;
+        if (player.movement > 5) {
+          clearInterval(this.autoTurnInterval);
+
+          for (const elem of players) {
+            elem.collector.stop();
+
+            elem.member.send({
+              embeds: [new MessageEmbed()
+                .setTitle('Game Over')
+                .setColor(this.settings.infoColor)
+                .setDescription(`Draw`)]
+            }).then(msg => {
+              setTimeout(() => msg.delete(), 10000)
+            }).catch(error => { console.log(`Cannot send messages`) });
+          }
+
+          return;
+        }
+
         clearInterval(this.autoTurnInterval);
         // auto change the turn
         this.autoTurnInterval = setInterval(() => {
           this.autoTurn(players, isSafeStatus);
-        }, (isSafeStatus) ? 60000 : 180000);
+        }, (isSafeStatus) ? 90000 : 180000);
 
         player.isTurn = false;
         players[opponentIndex].isTurn = true;
+
+        this.autoTurnCount = 0;
 
         await players[opponentIndex].member.send({
           embeds: [new MessageEmbed()
@@ -195,6 +223,26 @@ class DiscordChess {
 
   // auto change the turn
   autoTurn = (players, isSafeStatus) => {
+    this.autoTurnCount++;
+    if (this.autoTurnCount >= 3) {
+      clearInterval(this.autoTurnInterval);
+
+      for (const elem of players) {
+        elem.collector.stop();
+
+        elem.member.send({
+          embeds: [new MessageEmbed()
+            .setTitle('Game Over')
+            .setColor(this.settings.infoColor)
+            .setDescription(`Draw`)]
+        }).then(msg => {
+          setTimeout(() => msg.delete(), 10000)
+        }).catch(error => { console.log(`Cannot send messages`) });
+      }
+
+      return;
+    }
+
     if (!isSafeStatus) {
       clearInterval(this.autoTurnInterval);
 
@@ -208,7 +256,7 @@ class DiscordChess {
               .setColor(this.settings.dangerColor)
               .setDescription(`You lose`)]
           }).then(msg => {
-            setTimeout(() => msg.delete(), 5000)
+            setTimeout(() => msg.delete(), 10000)
           }).catch(error => { console.log(`Cannot send messages`) });
         } else {
           elem.member.send({
@@ -217,7 +265,7 @@ class DiscordChess {
               .setColor(this.settings.infoColor)
               .setDescription(`You win`)]
           }).then(msg => {
-            setTimeout(() => msg.delete(), 5000)
+            setTimeout(() => msg.delete(), 10000)
           }).catch(error => { console.log(`Cannot send messages`) });
         }
       }
