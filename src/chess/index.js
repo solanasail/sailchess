@@ -169,7 +169,7 @@ class DiscordChess {
         }
 
         player.movement++;
-        if (player.movement > 5) {
+        if (player.movement >= 50) {
           clearInterval(this.autoTurnInterval);
 
           for (const elem of players) {
