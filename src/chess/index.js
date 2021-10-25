@@ -165,6 +165,7 @@ class DiscordChess {
           player.collector.stop();
           players[opponentIndex].collector.stop();
 
+          await Room.removeRoom(players[0].member.id);
           return;
         }
 
@@ -185,6 +186,7 @@ class DiscordChess {
             }).catch(error => { console.log(`Cannot send messages`) });
           }
 
+          await Room.removeRoom(players[0].member.id);
           return;
         }
 
@@ -222,7 +224,7 @@ class DiscordChess {
   }
 
   // auto change the turn
-  autoTurn = (players, isSafeStatus) => {
+  autoTurn = async (players, isSafeStatus) => {
     this.autoTurnCount++;
     if (this.autoTurnCount >= 3) {
       clearInterval(this.autoTurnInterval);
@@ -240,6 +242,7 @@ class DiscordChess {
         }).catch(error => { console.log(`Cannot send messages`) });
       }
 
+      await Room.removeRoom(players[0].member.id);
       return;
     }
 
@@ -270,6 +273,7 @@ class DiscordChess {
         }
       }
 
+      await Room.removeRoom(players[0].member.id);
       return;
     }
 
