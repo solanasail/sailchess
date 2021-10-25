@@ -57,11 +57,23 @@ class Bishop {
 				let newRow = elem[0] * i + this.y;
 				let newCol = elem[1] * i + this.x;
 
-				if (!board.inBounds(newRow, newCol)) break;
+				if (!board.inBounds(newRow, newCol)) {
+          validatePos.splice(j,1);
+          j--;
+          break;
+        }
 
-				if (board.board[newRow][newCol] != 0 && board.board[newRow][newCol].suit == this.suit) break;
+        if (board.board[newRow][newCol] != 0) {
+          if (board.board[newRow][newCol].suit != this.suit) {
+            paths.push([newRow, newCol]);
+          }
 
-				if (board.board[newRow][newCol] == 0 || board.isPathEmpty(board.board, this.x, this.y, newRow, newCol)) {
+          validatePos.splice(j,1);
+          j--;
+          break;
+        }
+
+				if (board.board[newRow][newCol] == 0) {
           paths.push([newRow, newCol]);
         }
 			}

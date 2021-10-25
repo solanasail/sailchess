@@ -139,34 +139,34 @@ class DiscordChess {
           }).then(msg => {
             setTimeout(() => msg.delete(), 5000)
           }).catch(error => { console.log(`Cannot send messages`) });
-        }
-
-        if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
-          clearInterval(this.autoTurnInterval);
-
-          await player.member.send({
-            embeds: [new MessageEmbed()
-              .setTitle('Game Over')
-              .setColor(this.settings.infoColor)
-              .setDescription(`You win`)]
-          }).then(msg => {
-            setTimeout(() => msg.delete(), 10000)
-          }).catch(error => { console.log(`Cannot send messages`) });
-
-          await players[opponentIndex].member.send({
-            embeds: [new MessageEmbed()
-              .setTitle('Game Over')
-              .setColor(this.settings.dangerColor)
-              .setDescription(`You lose`)]
-          }).then(msg => {
-            setTimeout(() => msg.delete(), 10000)
-          }).catch(error => { console.log(`Cannot send messages`) });
-
-          player.collector.stop();
-          players[opponentIndex].collector.stop();
-
-          await Room.removeRoom(players[0].member.id);
-          return;
+          
+          if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
+            clearInterval(this.autoTurnInterval);
+  
+            await player.member.send({
+              embeds: [new MessageEmbed()
+                .setTitle('Game Over')
+                .setColor(this.settings.infoColor)
+                .setDescription(`You win`)]
+            }).then(msg => {
+              setTimeout(() => msg.delete(), 10000)
+            }).catch(error => { console.log(`Cannot send messages`) });
+  
+            await players[opponentIndex].member.send({
+              embeds: [new MessageEmbed()
+                .setTitle('Game Over')
+                .setColor(this.settings.dangerColor)
+                .setDescription(`You lose`)]
+            }).then(msg => {
+              setTimeout(() => msg.delete(), 10000)
+            }).catch(error => { console.log(`Cannot send messages`) });
+  
+            player.collector.stop();
+            players[opponentIndex].collector.stop();
+  
+            await Room.removeRoom(players[0].member.id);
+            return;
+          }
         }
 
         player.movement++;
