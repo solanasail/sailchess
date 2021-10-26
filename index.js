@@ -22,12 +22,6 @@ let guild = undefined;
 let dangerColor = '#d93f71';
 let infoColor = '#0099ff';
 
-const ChessGame = new DiscordChess({
-  prefix: COMMAND_PREFIX,
-  dangerColor: dangerColor,
-  infoColor: infoColor,
-});
-
 // When the client is ready, run this code
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -170,7 +164,12 @@ client.on('messageCreate', async (message) => {
 
     await Room.joinRoom(challenger.id, opponent.id);
 
-    await ChessGame.createGame(message); 
+    const chessGame = new DiscordChess({
+      prefix: COMMAND_PREFIX,
+      dangerColor: dangerColor,
+      infoColor: infoColor,
+    });
+    await chessGame.createGame(message); 
     return;
   }
 });
