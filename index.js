@@ -3,13 +3,13 @@ import { Client, MessageEmbed } from 'discord.js'
 import { DiscordChess } from "./src/chess/index.js"
 import Room from './src/chess/room.js'
 
-import {  
-  CLUSTERS, 
-  COMMAND_PREFIX, 
-  DISCORD_TOKEN, 
-  SOL_FEE_LIMIT, 
-  SAIL_Emoji, 
-  gSAIL_Emoji, 
+import {
+  CLUSTERS,
+  COMMAND_PREFIX,
+  DISCORD_TOKEN,
+  SOL_FEE_LIMIT,
+  SAIL_Emoji,
+  gSAIL_Emoji,
   SOL_Emoji,
   TRANSACTION_DESC
 } from './config/index.js'
@@ -26,8 +26,8 @@ let infoColor = '#0099ff';
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
-  
-client.on('disconnected', function() {
+
+client.on('disconnected', function () {
   console.log('Disconnected!');
   process.exit(1); //exit node.js with an error
 });
@@ -54,18 +54,22 @@ client.on('messageCreate', async (message) => {
       return;
     }
 
-    await message.author.send({ embeds: [new MessageEmbed()
-      .setColor(infoColor)
-      .setTitle('Help')
-      .setDescription(
-        `${COMMAND_PREFIX}register-wallet\n` + 
-        (await Utils.checkRoleInPublic(message) ? `${COMMAND_PREFIX}import-wallet <PK>\n` : ``)  +
-        `${COMMAND_PREFIX}balance\n${COMMAND_PREFIX}tipsol <user> <amount> -m <description>\n${COMMAND_PREFIX}tipsail <user> <amount> -m <description>\n${COMMAND_PREFIX}tipgsail <user> <amount> -m <description>\n\n?challenge_chess <user>\n?accept <user>`)] }).catch(error => {
-        console.log(`Cannot send messages to this user`);
-      });
+    await message.author.send({
+      embeds: [new MessageEmbed()
+        .setColor(infoColor)
+        .setTitle('Help')
+        .setDescription(
+          `${COMMAND_PREFIX}register-wallet\n` +
+          (await Utils.checkRoleInPublic(message) ? `${COMMAND_PREFIX}import-wallet <PK>\n` : ``) +
+          `${COMMAND_PREFIX}balance\n${COMMAND_PREFIX}tipsol <user> <amount> -m <description>\n${COMMAND_PREFIX}tipsail <user> <amount> -m <description>\n${COMMAND_PREFIX}tipgsail <user> <amount> -m <description>\n\n?challenge_chess <user>\n?accept <user>`)]
+    }).catch(error => {
+      console.log(`Cannot send messages to this user`);
+    });
     return;
-  } 
-  
+  } else if (command == "test") {
+
+  }
+
   if (command == "challenge_chess") {
     if (message.channel.type == "DM") {
       return;
@@ -75,29 +79,32 @@ client.on('messageCreate', async (message) => {
     const opponent = message.mentions.members.first(); // Get and define the opponent
 
     // If there is no opponent, require them to define one
-		if (!opponent) {
-      return await message.channel.send({embeds: [new MessageEmbed()
-        .setColor(dangerColor)
-        .setDescription(`Please mention another SAILOR to play the chess!`)]
+    if (!opponent) {
+      return await message.channel.send({
+        embeds: [new MessageEmbed()
+          .setColor(dangerColor)
+          .setDescription(`Please mention another SAILOR to play the chess!`)]
       }).catch(error => {
         console.log(`Cannot send messages`);
       });
-		}
+    }
 
     // Check for prevention against challenging yourself
-		if (challenger.id === opponent.id) {
-      return await message.channel.send({embeds: [new MessageEmbed()
-        .setColor(dangerColor)
-        .setDescription(`Please challenge someone other than yourself!`)]
+    if (challenger.id === opponent.id) {
+      return await message.channel.send({
+        embeds: [new MessageEmbed()
+          .setColor(dangerColor)
+          .setDescription(`Please challenge someone other than yourself!`)]
       }).catch(error => {
         console.log(`Cannot send messages`);
       });
-		}
+    }
 
     if (await Room.checkIsPlaying(challenger.id)) { // check the user is playing
-      return await message.channel.send({embeds: [new MessageEmbed()
-        .setColor(dangerColor)
-        .setDescription(`You are still playing the game`)]
+      return await message.channel.send({
+        embeds: [new MessageEmbed()
+          .setColor(dangerColor)
+          .setDescription(`You are still playing the game`)]
       }).catch(error => {
         console.log(`Cannot send messages`);
       });
@@ -107,10 +114,10 @@ client.on('messageCreate', async (message) => {
     await Room.setRoom(challenger.id, opponent.id);
 
     await message.channel.send({
-      embeds: [ 
+      embeds: [
         new MessageEmbed()
-        .setColor(infoColor)
-        .setDescription(`Hello ${opponent}\n\n${challenger} just challenged you to a game of SAIL Battle Ship\n\n${challenger} vs ${opponent}\n\nIf you want to accept, please type '${COMMAND_PREFIX}accept <user>'`)
+          .setColor(infoColor)
+          .setDescription(`Hello ${opponent}\n\n${challenger} just challenged you to a chess game\n\n${challenger} vs ${opponent}\n\nIf you want to accept, please type '${COMMAND_PREFIX}accept <user>'`)
       ]
     }).catch(error => {
       console.log(`Cannot send messages`);
@@ -121,45 +128,50 @@ client.on('messageCreate', async (message) => {
     if (message.channel.type == "DM") {
       return;
     }
-    
+
     const challenger = message.mentions.members.first(); // Define the challenger
     const opponent = message.member; // Get and define the opponent 
 
     // If there is no challenger, require them to define one
-		if (!challenger) {
-      return await message.channel.send({embeds: [new MessageEmbed()
-        .setColor(dangerColor)
-        .setDescription(`Please mention another SAILOR to play chess!`)]
+    if (!challenger) {
+      return await message.channel.send({
+        embeds: [new MessageEmbed()
+          .setColor(dangerColor)
+          .setDescription(`Please mention another SAILOR to play chess!`)]
       }).catch(error => {
         console.log(`Cannot send messages`);
       });
-		}
+    }
 
-		// Check for prevention against challenging yourself
-		if (challenger.id === opponent.id) {
-      return await message.channel.send({embeds: [new MessageEmbed()
-        .setColor(dangerColor)
-        .setDescription(`Please challenge someone other than yourself!`)]
+    // Check for prevention against challenging yourself
+    if (challenger.id === opponent.id) {
+      return await message.channel.send({
+        embeds: [new MessageEmbed()
+          .setColor(dangerColor)
+          .setDescription(`Please challenge someone other than yourself!`)]
       }).catch(error => {
         console.log(`Cannot send messages`);
       });
-		}
+    }
 
     if (await Room.checkIsPlaying(opponent.id)) { // check the user is playing
-      return await message.channel.send({embeds: [new MessageEmbed()
-        .setColor(dangerColor)
-        .setDescription(`You are still playing the game`)]
+      return await message.channel.send({
+        embeds: [new MessageEmbed()
+          .setColor(dangerColor)
+          .setDescription(`You are still playing the game`)]
       }).catch(error => {
         console.log(`Cannot send messages`);
       });
     }
 
     if (!await Room.checkCanAccept(challenger.id, opponent.id)) {
-      return await message.channel.send({embeds: [new MessageEmbed()
-        .setColor(dangerColor)
-        .setDescription(`You can't play with ${challenger.user}`)]}).catch(error => {
-          console.log(`Cannot send messages`);
-        });
+      return await message.channel.send({
+        embeds: [new MessageEmbed()
+          .setColor(dangerColor)
+          .setDescription(`You can't play with ${challenger.user}`)]
+      }).catch(error => {
+        console.log(`Cannot send messages`);
+      });
     }
 
     await Room.joinRoom(challenger.id, opponent.id);
@@ -169,14 +181,14 @@ client.on('messageCreate', async (message) => {
       dangerColor: dangerColor,
       infoColor: infoColor,
     });
-    await chessGame.createGame(message); 
+    await chessGame.createGame(message);
     return;
   }
 });
 
 try {
   // Login to Discord with your client's token
-  client.login(DISCORD_TOKEN); 
+  client.login(DISCORD_TOKEN);
 } catch (e) {
   console.error('Client has failed to connect to discord.');
   process.exit(1);

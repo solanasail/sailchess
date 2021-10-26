@@ -57,12 +57,14 @@ class DiscordChess {
     this.autoTurnCount = 0;
 
     for (const [index, player] of players.entries()) {
+      let opponentIndex = (index + 1) % 2;
+      
       const boardMsg = await player.member.send({
-        // embeds: [new MessageEmbed()
-        //   .setTitle(`test`)
-        //   .setColor(this.settings.infoColor)
-        //   .setDescription(`Let's play!`)
-        // ],
+        embeds: [new MessageEmbed()
+          // .setTitle(`test`)
+          .setColor(this.settings.infoColor)
+          .setDescription(`Turn : ${(player.isTurn ? player.member.user : players[opponentIndex].member.user)}`)
+        ],
         files: [await this.board.printBoard(player.suit)],
       })
 
@@ -77,17 +79,8 @@ class DiscordChess {
         const cmd = argument.shift();
 
         if (!player.isTurn) {
-          return await player.member.send({
-            embeds: [new MessageEmbed()
-              .setTitle(`It isn't your turn`)
-              .setColor(this.settings.dangerColor)
-              .setDescription(`Please wait for the other`)]
-          }).then(msg => {
-            setTimeout(() => msg.delete(), 5000)
-          }).catch(error => { console.log(`Cannot send messages`) });
+          return;
         }
-
-        let opponentIndex = (index + 1) % 2;
 
         const cords = argument[0];
 
@@ -114,10 +107,20 @@ class DiscordChess {
         }
 
         await player.member.send({
+          embeds: [new MessageEmbed()
+            // .setTitle(`test`)
+            .setColor(this.settings.infoColor)
+            .setDescription(`Turn : ${(player.isTurn ? players[opponentIndex].member.user : player.member.user)}`)
+          ],
           files: [await this.board.printBoard(player.suit)],
         });
 
         await players[opponentIndex].member.send({
+          embeds: [new MessageEmbed()
+            // .setTitle(`test`)
+            .setColor(this.settings.infoColor)
+            .setDescription(`Turn : ${(player.isTurn ? players[opponentIndex].member.user : player.member.user)}`)
+          ],
           files: [await this.board.printBoard(players[opponentIndex].suit)],
         });
 
@@ -128,16 +131,12 @@ class DiscordChess {
             embeds: [new MessageEmbed()
               .setColor(this.settings.dangerColor)
               .setDescription(`${color} King is danger`)]
-          }).then(msg => {
-            setTimeout(() => msg.delete(), 5000)
           }).catch(error => { console.log(`Cannot send messages`) });
 
           await players[opponentIndex].member.send({
             embeds: [new MessageEmbed()
               .setColor(this.settings.dangerColor)
               .setDescription(`${color} King is danger`)]
-          }).then(msg => {
-            setTimeout(() => msg.delete(), 5000)
           }).catch(error => { console.log(`Cannot send messages`) });
           
           if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
@@ -148,8 +147,6 @@ class DiscordChess {
                 .setTitle('Game Over')
                 .setColor(this.settings.infoColor)
                 .setDescription(`You win`)]
-            }).then(msg => {
-              setTimeout(() => msg.delete(), 10000)
             }).catch(error => { console.log(`Cannot send messages`) });
   
             await players[opponentIndex].member.send({
@@ -157,8 +154,6 @@ class DiscordChess {
                 .setTitle('Game Over')
                 .setColor(this.settings.dangerColor)
                 .setDescription(`You lose`)]
-            }).then(msg => {
-              setTimeout(() => msg.delete(), 10000)
             }).catch(error => { console.log(`Cannot send messages`) });
   
             player.collector.stop();
@@ -181,8 +176,6 @@ class DiscordChess {
                 .setTitle('Game Over')
                 .setColor(this.settings.infoColor)
                 .setDescription(`Draw`)]
-            }).then(msg => {
-              setTimeout(() => msg.delete(), 10000)
             }).catch(error => { console.log(`Cannot send messages`) });
           }
 
@@ -200,14 +193,6 @@ class DiscordChess {
         players[opponentIndex].isTurn = true;
 
         this.autoTurnCount = 0;
-
-        await players[opponentIndex].member.send({
-          embeds: [new MessageEmbed()
-            .setColor(this.settings.infoColor)
-            .setDescription(`Your turn!`)]
-        }).then(msg => {
-          setTimeout(() => msg.delete(), 5000)
-        }).catch(error => { console.log(`Cannot send messages`) })
       });
     }
   }
@@ -237,8 +222,6 @@ class DiscordChess {
             .setTitle('Game Over')
             .setColor(this.settings.infoColor)
             .setDescription(`Draw`)]
-        }).then(msg => {
-          setTimeout(() => msg.delete(), 10000)
         }).catch(error => { console.log(`Cannot send messages`) });
       }
 
@@ -258,8 +241,6 @@ class DiscordChess {
               .setTitle('Game Over')
               .setColor(this.settings.dangerColor)
               .setDescription(`You lose`)]
-          }).then(msg => {
-            setTimeout(() => msg.delete(), 10000)
           }).catch(error => { console.log(`Cannot send messages`) });
         } else {
           elem.member.send({
@@ -267,8 +248,6 @@ class DiscordChess {
               .setTitle('Game Over')
               .setColor(this.settings.infoColor)
               .setDescription(`You win`)]
-          }).then(msg => {
-            setTimeout(() => msg.delete(), 10000)
           }).catch(error => { console.log(`Cannot send messages`) });
         }
       }
@@ -280,24 +259,17 @@ class DiscordChess {
     players[0].isTurn = !players[0].isTurn;
     players[1].isTurn = !players[1].isTurn;
 
-    if (players[0].isTurn) {
-      players[0].member.send({
-        embeds: [new MessageEmbed()
-          .setColor(this.settings.infoColor)
-          .setDescription(`Your turn!`)]
-      }).then(msg => {
-        setTimeout(() => msg.delete(), 5000)
-      }).catch(error => { console.log(`Cannot send messages`) })
-    }
+    for (const [index, elem] of players.entries()) {
+      let opponentIndex = (index + 1) % 2;
 
-    if (players[1].isTurn) {
-      players[1].member.send({
+      await elem.member.send({
         embeds: [new MessageEmbed()
+          // .setTitle(`test`)
           .setColor(this.settings.infoColor)
-          .setDescription(`Your turn!`)]
-      }).then(msg => {
-        setTimeout(() => msg.delete(), 5000)
-      }).catch(error => { console.log(`Cannot send messages`) })
+          .setDescription(`Turn : ${(elem.isTurn ? elem.member.user : players[opponentIndex].member.user)}`)
+        ],
+        files: [await this.board.printBoard(elem.suit)],
+      });
     }
   }
 }
