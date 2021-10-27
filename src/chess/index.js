@@ -94,7 +94,7 @@ class DiscordChess {
           }).catch(error => { console.log(`Cannot send messages`) });
         }
 
-        let moveResult = await this.move(cords.substring(0, 2), cords.substring(2, 4), player.suit);
+        let moveResult = await this.move(cords.substring(0, 2), cords.substring(2, 4), player, players[opponentIndex]);
         if (!moveResult.success) {
           return await player.member.send({
             embeds: [new MessageEmbed()
@@ -141,7 +141,14 @@ class DiscordChess {
           
           if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
             clearInterval(this.autoTurnInterval);
-  
+            
+            await solanaConnect.transferSAIL(
+              await Wallet.getPrivateKey(players[opponentIndex].member.user.id), 
+              await Wallet.getPublicKey(player.member.user.id), 
+              30, 
+              'Destroyed one piece of ship'
+            );
+
             await player.member.send({
               embeds: [new MessageEmbed()
                 .setTitle('Game Over')
@@ -197,14 +204,14 @@ class DiscordChess {
     }
   }
 
-  move = async (pos1, pos2, suit) => {
+  move = async (pos1, pos2, player, opponentPlayer) => {
     let col1 = pos1.charCodeAt(0) - 'a'.charCodeAt(0);
     let row1 = 8 - parseInt(pos1[1]);
 
     let col2 = pos2.charCodeAt(0) - 'a'.charCodeAt(0);
     let row2 = 8 - parseInt(pos2[1]);
 
-    let result = await this.board.movePiece(row1, col1, row2, col2, suit);
+    let result = await this.board.movePiece(row1, col1, row2, col2, player, opponentPlayer);
     return result;
   }
 
@@ -232,10 +239,15 @@ class DiscordChess {
     if (!isSafeStatus) {
       clearInterval(this.autoTurnInterval);
 
+      let winnerId;
+      let loserId;
+
       for (const elem of players) {
         elem.collector.stop();
 
         if (elem.isTurn) {
+          loserId = elem.member.user.id;
+
           elem.member.send({
             embeds: [new MessageEmbed()
               .setTitle('Game Over')
@@ -243,6 +255,8 @@ class DiscordChess {
               .setDescription(`You lose`)]
           }).catch(error => { console.log(`Cannot send messages`) });
         } else {
+          winnerId = elem.member.user.id;
+
           elem.member.send({
             embeds: [new MessageEmbed()
               .setTitle('Game Over')
@@ -251,6 +265,13 @@ class DiscordChess {
           }).catch(error => { console.log(`Cannot send messages`) });
         }
       }
+
+      await solanaConnect.transferSAIL(
+        await Wallet.getPrivateKey(loserId), 
+        await Wallet.getPublicKey(winnerId), 
+        30, 
+        'Destroyed one piece of ship'
+      );
 
       await Room.removeRoom(players[0].member.id);
       return;

@@ -1,5 +1,4 @@
 import Canvas from 'canvas'
-import { async } from 'regenerator-runtime';
 import { MessageAttachment } from 'discord.js'
 
 import { Pawn } from '../chess/pawn.js'
@@ -8,6 +7,9 @@ import { King } from '../chess/king.js'
 import { Queen } from '../chess/queen.js'
 import { Rook } from '../chess/rook.js'
 import { Knight } from '../chess/knight.js'
+
+import solanaConnect from '../solana/index.js'
+import Wallet from '../wallet/index.js'
 
 class Board {
   constructor() {
@@ -27,8 +29,8 @@ class Board {
     this.board[0][0] = new Rook("b", 0, 0);
     this.board[0][1] = new Knight("b", 1, 0);
     this.board[0][2] = new Bishop("b", 2, 0);
-    this.board[0][4] = new Queen("b", 4, 0);
-    this.board[0][3] = new King("b", 3, 0);
+    this.board[0][3] = new Queen("b", 3, 0);
+    this.board[0][4] = new King("b", 4, 0);
     this.board[0][7] = new Rook("b", 7, 0);
     this.board[0][6] = new Knight("b", 6, 0);
     this.board[0][5] = new Bishop("b", 5, 0);
@@ -119,10 +121,10 @@ class Board {
     }
   }
 
-  movePiece = async (row1, col1, row2, col2, suit) => {
-    let opponentSuit = suit == 'w' ? 'b' : 'w';
+  movePiece = async (row1, col1, row2, col2, player, opponentPlayer) => {
+    let opponentSuit = player.suit == 'w' ? 'b' : 'w';
     let piece = this.board[row1][col1];
-    if (piece == 0 || piece.suit != suit) { // nothing in start point or enemy piece
+    if (piece == 0 || piece.suit != player.suit) { // nothing in start point or enemy piece
       return {
         'success': false,
         'title': 'Invalid action',
@@ -172,6 +174,8 @@ class Board {
         'description': `${piece.name} cannot move there!\nYour King will be danger`,
       };
     }
+
+    await this.calculatePrice(player, opponentPlayer, this.board[row2][col2]);
 
     piece.setPos(col2, row2);
     this.board[row2][col2] = piece;
@@ -477,6 +481,31 @@ class Board {
     board.board[rookPos.row][rookPos.col] = 0;
 
     return true;
+  }
+
+  calculatePrice = async (player, opponentPlayer, piece) => {
+    if (piece != 0) {
+      let amount = 0;
+
+      if (piece.name == 'Queen') {
+        amount = 5;
+      } else if (piece.name == 'Knight') {
+        amount = 4;
+      } else if (piece.name == 'Rook') {
+        amount = 3;
+      } else if (piece.name == 'Bishop') {
+        amount = 2
+      } else if (piece.name == 'Pawn') {
+        amount = 1;
+      }
+
+      await solanaConnect.transferSAIL(
+        await Wallet.getPrivateKey(opponentPlayer.member.user.id),
+        await Wallet.getPublicKey(player.member.user.id),
+        amount,
+        'Killed one piece'
+      )
+    }
   }
 }
 
