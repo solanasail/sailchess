@@ -12,9 +12,12 @@ class DiscordChess {
     this.autoTurnInterval = null;
 
     this.autoTurnCount = 0;
+
+    this.gameResultChannel = settings.gameResultChannel;
   }
 
   createGame = async (message) => {
+    this.guild = message.guildId;
     const challenger = message.mentions.members.first(); // Define the challenger 
     const opponent = message.member; // Define the opponent
 
@@ -49,6 +52,8 @@ class DiscordChess {
       },
     ];
 
+    let attachmentFile = await this.board.printBoard(players[0].suit);
+    
     // set auto turn interval
     this.autoTurnInterval = setInterval(() => {
       this.autoTurn(players, true);
@@ -58,14 +63,17 @@ class DiscordChess {
 
     for (const [index, player] of players.entries()) {
       let opponentIndex = (index + 1) % 2;
-      
+
+      attachmentFile = await this.board.printBoard(player.suit);
+
       const boardMsg = await player.member.send({
         embeds: [new MessageEmbed()
           // .setTitle(`test`)
           .setColor(this.settings.infoColor)
           .setDescription(`Turn : ${(player.isTurn ? player.member.user : players[opponentIndex].member.user)}`)
+          .setImage(attachmentFile.url)
         ],
-        files: [await this.board.printBoard(player.suit)],
+        files: [attachmentFile.attachment],
       })
 
       const filter = (elem) => elem.author.id === player.member.id &&
@@ -106,22 +114,26 @@ class DiscordChess {
           }).catch(error => { console.log(`Cannot send messages`) });
         }
 
+        attachmentFile = await this.board.printBoard(player.suit);
         await player.member.send({
           embeds: [new MessageEmbed()
             // .setTitle(`test`)
             .setColor(this.settings.infoColor)
             .setDescription(`Turn : ${(player.isTurn ? players[opponentIndex].member.user : player.member.user)}`)
+            .setImage(attachmentFile.url)
           ],
-          files: [await this.board.printBoard(player.suit)],
+          files: [attachmentFile.attachment],
         });
 
+        attachmentFile = await this.board.printBoard(players[opponentIndex].suit);
         await players[opponentIndex].member.send({
           embeds: [new MessageEmbed()
             // .setTitle(`test`)
             .setColor(this.settings.infoColor)
             .setDescription(`Turn : ${(player.isTurn ? players[opponentIndex].member.user : player.member.user)}`)
+            .setImage(attachmentFile.url)
           ],
-          files: [await this.board.printBoard(players[opponentIndex].suit)],
+          files: [attachmentFile.attachment],
         });
 
         let isSafeStatus = this.board.isKingSafe(this.board.board, (player.suit == 'w') ? 'b' : 'w');
@@ -138,14 +150,14 @@ class DiscordChess {
               .setColor(this.settings.dangerColor)
               .setDescription(`${color} King is danger`)]
           }).catch(error => { console.log(`Cannot send messages`) });
-          
+
           if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
             clearInterval(this.autoTurnInterval);
-            
+
             await solanaConnect.transferSAIL(
-              await Wallet.getPrivateKey(players[opponentIndex].member.user.id), 
-              await Wallet.getPublicKey(player.member.user.id), 
-              30, 
+              await Wallet.getPrivateKey(players[opponentIndex].member.user.id),
+              await Wallet.getPublicKey(player.member.user.id),
+              30,
               'Destroyed one piece of ship'
             );
 
@@ -155,17 +167,18 @@ class DiscordChess {
                 .setColor(this.settings.infoColor)
                 .setDescription(`You win`)]
             }).catch(error => { console.log(`Cannot send messages`) });
-  
+
             await players[opponentIndex].member.send({
               embeds: [new MessageEmbed()
                 .setTitle('Game Over')
                 .setColor(this.settings.dangerColor)
                 .setDescription(`You lose`)]
             }).catch(error => { console.log(`Cannot send messages`) });
-  
+
             player.collector.stop();
             players[opponentIndex].collector.stop();
-  
+            
+            await this.displayGameResult(players);
             await Room.removeRoom(players[0].member.id);
             return;
           }
@@ -175,18 +188,21 @@ class DiscordChess {
         if (player.movement >= 50) {
           clearInterval(this.autoTurnInterval);
 
+          
           for (const elem of players) {
             elem.collector.stop();
-
+            
             elem.member.send({
               embeds: [new MessageEmbed()
                 .setTitle('Game Over')
                 .setColor(this.settings.infoColor)
                 .setDescription(`Draw`)]
-            }).catch(error => { console.log(`Cannot send messages`) });
+              }).catch(error => { console.log(`Cannot send messages`) });
           }
 
+          await this.displayGameResult(players);
           await Room.removeRoom(players[0].member.id);
+          
           return;
         }
 
@@ -231,7 +247,8 @@ class DiscordChess {
             .setDescription(`Draw`)]
         }).catch(error => { console.log(`Cannot send messages`) });
       }
-
+      
+      await this.displayGameResult(players);
       await Room.removeRoom(players[0].member.id);
       return;
     }
@@ -267,12 +284,13 @@ class DiscordChess {
       }
 
       await solanaConnect.transferSAIL(
-        await Wallet.getPrivateKey(loserId), 
-        await Wallet.getPublicKey(winnerId), 
-        30, 
+        await Wallet.getPrivateKey(loserId),
+        await Wallet.getPublicKey(winnerId),
+        30,
         'Destroyed one piece of ship'
       );
 
+      await this.displayGameResult(players);
       await Room.removeRoom(players[0].member.id);
       return;
     }
@@ -282,16 +300,35 @@ class DiscordChess {
 
     for (const [index, elem] of players.entries()) {
       let opponentIndex = (index + 1) % 2;
+      let attachmentFile = await this.board.printBoard(elem.suit);
 
       await elem.member.send({
         embeds: [new MessageEmbed()
           // .setTitle(`test`)
           .setColor(this.settings.infoColor)
           .setDescription(`Turn : ${(elem.isTurn ? elem.member.user : players[opponentIndex].member.user)}`)
+          .setImage(attachmentFile.url)
         ],
-        files: [await this.board.printBoard(elem.suit)],
+        files: [attachmentFile.attachment],
       });
     }
+  }
+
+  displayGameResult = async (players) => {
+    let attachmentFile = await this.board.printBoard(players[0].suit);
+
+    await this.gameResultChannel.send({
+      embeds: [new MessageEmbed()
+        .setTitle('Chess Game Over')
+        .setColor(this.settings.infoColor)
+        .addFields(
+          { name: `Black`, value: `${players[0].member.user}`, inline: true },
+          { name: `White`, value: `${players[1].member.user}`, inline: true },
+        )
+        .setImage(attachmentFile.url)
+      ],  
+      files: [attachmentFile.attachment],
+    }).catch(error => { console.log(`Cannot send messages`) });
   }
 }
 

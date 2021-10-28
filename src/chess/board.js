@@ -94,7 +94,11 @@ class Board {
       }
     }
 
-    return new MessageAttachment(this.canvas.toBuffer(), 'board-image.png');
+    let fileName = (+new Date).toString() + '.png';
+    return {
+      attachment: new MessageAttachment(this.canvas.toBuffer(), fileName),
+      url: `attachment://${fileName}`,
+    };
   }
 
   isPathEmpty(board, x1, y1, x2, y2) {

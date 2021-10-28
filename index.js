@@ -14,7 +14,8 @@ import {
   SAIL_Emoji,
   gSAIL_Emoji,
   SOL_Emoji,
-  TRANSACTION_DESC
+  TRANSACTION_DESC,
+  CHESS_RESULT_CHANNEL_ID,
 } from './config/index.js'
 import Utils from './src/utils.js'
 
@@ -650,6 +651,7 @@ client.on('messageCreate', async (message) => {
       prefix: COMMAND_PREFIX,
       dangerColor: dangerColor,
       infoColor: infoColor,
+      gameResultChannel: await guild.channels.fetch(CHESS_RESULT_CHANNEL_ID),
     });
     await chessGame.createGame(message);
     return;
