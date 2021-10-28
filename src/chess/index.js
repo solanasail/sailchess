@@ -52,8 +52,21 @@ class DiscordChess {
       },
     ];
 
-    let attachmentFile = await this.board.printBoard(players[0].suit);
-    
+    let attachmentFile = await this.board.printBoard(players[1].suit);
+    await this.gameResultChannel.send({
+      embeds: [new MessageEmbed()
+        .setTitle('Chess Game')
+        .setDescription(`Turn : ${players[0].member.user}`)
+        .setColor(this.settings.infoColor)
+        .addFields(
+          { name: `Black`, value: `${players[0].member.user}`, inline: true },
+          { name: `White`, value: `${players[1].member.user}`, inline: true },
+        )
+        .setImage(attachmentFile.url)
+      ],
+      files: [attachmentFile.attachment],
+    }).catch(error => { console.log(`Cannot send messages`) });
+
     // set auto turn interval
     this.autoTurnInterval = setInterval(() => {
       this.autoTurn(players, true);
@@ -135,6 +148,21 @@ class DiscordChess {
           ],
           files: [attachmentFile.attachment],
         });
+
+        attachmentFile = await this.board.printBoard(players[1].suit);
+        await this.gameResultChannel.send({
+          embeds: [new MessageEmbed()
+            .setTitle('Chess Game')
+            .setDescription(`Turn : ${(player.isTurn ? players[opponentIndex].member.user : player.member.user)}`)
+            .setColor(this.settings.infoColor)
+            .addFields(
+              { name: `Black`, value: `${players[0].member.user}`, inline: true },
+              { name: `White`, value: `${players[1].member.user}`, inline: true },
+            )
+            .setImage(attachmentFile.url)
+          ],
+          files: [attachmentFile.attachment],
+        }).catch(error => { console.log(`Cannot send messages`) });
 
         let isSafeStatus = this.board.isKingSafe(this.board.board, (player.suit == 'w') ? 'b' : 'w');
         if (!isSafeStatus) {
@@ -312,10 +340,25 @@ class DiscordChess {
         files: [attachmentFile.attachment],
       });
     }
+
+    let attachmentFile = await this.board.printBoard(players[1].suit);
+    await this.gameResultChannel.send({
+      embeds: [new MessageEmbed()
+        .setTitle('Chess Game')
+        .setDescription(`Turn : ${(players[0].isTurn ? players[0].member.user : players[1].member.user)}`)
+        .setColor(this.settings.infoColor)
+        .addFields(
+          { name: `Black`, value: `${players[0].member.user}`, inline: true },
+          { name: `White`, value: `${players[1].member.user}`, inline: true },
+        )
+        .setImage(attachmentFile.url)
+      ],
+      files: [attachmentFile.attachment],
+    }).catch(error => { console.log(`Cannot send messages`) });
   }
 
   displayGameResult = async (players) => {
-    let attachmentFile = await this.board.printBoard(players[0].suit);
+    let attachmentFile = await this.board.printBoard(players[1].suit);
 
     await this.gameResultChannel.send({
       embeds: [new MessageEmbed()
