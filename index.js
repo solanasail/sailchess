@@ -519,10 +519,10 @@ client.on('messageCreate', async (message) => {
     const SAIL = await solanaConnect.getSAILBalance(await Wallet.getPrivateKey(message.author.id));
 
     // check the price
-    if (sol.amount < 0.1 || gSAIL.amount < 1 || SAIL.amount < 1) {
+    if (sol.amount < 0.1 || gSAIL.amount < 1 || SAIL.amount < 61) {
       await message.channel.send({embeds: [new MessageEmbed()
         .setColor(dangerColor)  
-        .setDescription(`You should have at least 0.1 sol, 1 gSAIL and 1 SAIL`)]}).catch(error => {
+        .setDescription(`You should have at least 0.1 sol, 1 gSAIL and 61 SAIL`)]}).catch(error => {
           console.log(`Cannot send messages`);
         });
         return;
@@ -590,10 +590,10 @@ client.on('messageCreate', async (message) => {
     const SAIL = await solanaConnect.getSAILBalance(await Wallet.getPrivateKey(message.author.id));
 
     // check the price
-    if (sol.amount < 0.1 || gSAIL.amount < 1 || SAIL.amount < 1) {
+    if (sol.amount < 0.1 || gSAIL.amount < 1 || SAIL.amount < 61) {
       await message.channel.send({embeds: [new MessageEmbed()
         .setColor(dangerColor)
-        .setDescription(`You should have at least 0.1 sol, 1 gSAIL and 1 SAIL`)]}).catch(error => {
+        .setDescription(`You should have at least 0.1 sol, 1 gSAIL and 61 SAIL`)]}).catch(error => {
           console.log(`Cannot send messages`);
         });
         return;
