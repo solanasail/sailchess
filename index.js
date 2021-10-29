@@ -16,6 +16,7 @@ import {
   SOL_Emoji,
   TRANSACTION_DESC,
   CHESS_RESULT_CHANNEL_ID,
+  GUILD_ID,
 } from './config/index.js'
 import Utils from './src/utils.js'
 
@@ -38,7 +39,8 @@ try {
 }
 
 // When the client is ready, run this code
-client.once('ready', () => {
+client.once('ready', async () => {
+  guild = await client.guilds.fetch(GUILD_ID);
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
@@ -50,9 +52,6 @@ client.on('disconnected', function () {
 client.on('messageCreate', async (message) => {
   // Ignore the message if the prefix does not fit and if the client authored it.
   if (!message.content.startsWith(COMMAND_PREFIX) || message.author.bot) return;
-
-  // check the guild
-  guild = await Utils.checkGuild(client, guild, message);
 
   let tmpMsg = (message.content + ' ').split(' -m ');
 
@@ -168,7 +167,7 @@ client.on('messageCreate', async (message) => {
         .setDescription(
           `${COMMAND_PREFIX}register-wallet\n` +
           (await Utils.checkRoleInPublic(message) ? `${COMMAND_PREFIX}import-wallet <PK>\n` : ``) +
-          `${COMMAND_PREFIX}balance\n${COMMAND_PREFIX}tipsol <user> <amount> -m <description>\n${COMMAND_PREFIX}tipsail <user> <amount> -m <description>\n${COMMAND_PREFIX}tipgsail <user> <amount> -m <description>\n\n${COMMAND_PREFIX}challenge_chess <user>\n${COMMAND_PREFIX}accept <user>\n${COMMAND_PREFIX}move g1f3\n\nTurn will be changed automatically in 90 seconds\nIf you don't move your piece to protect your King in 180 seconds even though your king is danger, you will be loser`)]
+          `${COMMAND_PREFIX}balance\n${COMMAND_PREFIX}tipsol <user> <amount> -m <description>\n${COMMAND_PREFIX}tipsail <user> <amount> -m <description>\n${COMMAND_PREFIX}tipgsail <user> <amount> -m <description>\n\n${COMMAND_PREFIX}challenge_chess <user>\n${COMMAND_PREFIX}accept <user>\n${COMMAND_PREFIX}move g1f3\n\nTurn will be changed automatically in 90 seconds\nIf you don't move your piece to protect your King in 180 seconds even though your king is danger, you will be loser\n\nTotal at least 61 SAIL\n\nQueen 5 SAIL\nKnight 4 SAIL * 2\nRook 3 SAIL * 2\nBishop 2 SAIL * 2\nPawn 1 SAIL * 8\n\nYou win : King 30 SAIL`)]
     }).catch(error => {
       console.log(`Cannot send messages to this user`);
     });

@@ -30,6 +30,7 @@ export const DB_PASSWORD=''
 export const DB_NAME='tip_sail'
 
 export const CHESS_RESULT_CHANNEL_ID='902777434036916266'
+export const GUILD_ID='892131767308386304'
 
 export const EXPECTED_ROLS=[
   '@developer',
