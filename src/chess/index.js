@@ -205,7 +205,7 @@ class DiscordChess {
 
             player.collector.stop();
             players[opponentIndex].collector.stop();
-            
+
             await this.displayGameResult(players);
             await Room.removeRoom(players[0].member.id);
             return;
@@ -216,21 +216,21 @@ class DiscordChess {
         if (player.movement >= 50) {
           clearInterval(this.autoTurnInterval);
 
-          
+
           for (const elem of players) {
             elem.collector.stop();
-            
+
             elem.member.send({
               embeds: [new MessageEmbed()
                 .setTitle('Game Over')
                 .setColor(this.settings.infoColor)
                 .setDescription(`Draw`)]
-              }).catch(error => { console.log(`Cannot send messages`) });
+            }).catch(error => { console.log(`Cannot send messages`) });
           }
 
           await this.displayGameResult(players);
           await Room.removeRoom(players[0].member.id);
-          
+
           return;
         }
 
@@ -275,7 +275,7 @@ class DiscordChess {
             .setDescription(`Draw`)]
         }).catch(error => { console.log(`Cannot send messages`) });
       }
-      
+
       await this.displayGameResult(players);
       await Room.removeRoom(players[0].member.id);
       return;
@@ -369,7 +369,7 @@ class DiscordChess {
           { name: `White`, value: `${players[1].member.user}`, inline: true },
         )
         .setImage(attachmentFile.url)
-      ],  
+      ],
       files: [attachmentFile.attachment],
     }).catch(error => { console.log(`Cannot send messages`) });
   }
