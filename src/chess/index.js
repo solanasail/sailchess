@@ -182,25 +182,28 @@ class DiscordChess {
           if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
             clearInterval(this.autoTurnInterval);
 
-            await solanaConnect.transferSAIL(
+            // Get the SAIL amount of KING
+            if (await solanaConnect.transferSAIL(
               await Wallet.getPrivateKey(players[opponentIndex].member.user.id),
               await Wallet.getPublicKey(player.member.user.id),
               30,
-              'Destroyed one piece of ship'
-            );
+              'Destroyed the KING')) {
+              player.earnAmount.sail += 30;
+              players[opponentIndex].earnAmount.sail -= 30;
+            }
 
             await player.member.send({
               embeds: [new MessageEmbed()
                 .setTitle('Game Over')
                 .setColor(this.settings.infoColor)
-                .setDescription(`You win`)]
+                .setDescription(`You win (+30 SAIL)\nTotal : ${player.earnAmount.sail} SAIL`)]
             }).catch(error => { console.log(`Cannot send messages`) });
 
             await players[opponentIndex].member.send({
               embeds: [new MessageEmbed()
                 .setTitle('Game Over')
                 .setColor(this.settings.dangerColor)
-                .setDescription(`You lose`)]
+                .setDescription(`You lose (-30 SAIL)\nTotal : ${players[opponentIndex].earnAmount.sail} SAIL`)]
             }).catch(error => { console.log(`Cannot send messages`) });
 
             player.collector.stop();
@@ -224,7 +227,7 @@ class DiscordChess {
               embeds: [new MessageEmbed()
                 .setTitle('Game Over')
                 .setColor(this.settings.infoColor)
-                .setDescription(`Draw`)]
+                .setDescription(`Draw\nTotal : ${elem.earnAmount.sail} SAIL`)]
             }).catch(error => { console.log(`Cannot send messages`) });
           }
 
@@ -272,7 +275,7 @@ class DiscordChess {
           embeds: [new MessageEmbed()
             .setTitle('Game Over')
             .setColor(this.settings.infoColor)
-            .setDescription(`Draw`)]
+            .setDescription(`Draw\nTotal : ${elem.earnAmount.sail} SAIL`)]
         }).catch(error => { console.log(`Cannot send messages`) });
       }
 
@@ -284,39 +287,41 @@ class DiscordChess {
     if (!isSafeStatus) {
       clearInterval(this.autoTurnInterval);
 
-      let winnerId;
-      let loserId;
+      let winner, loser;
 
       for (const elem of players) {
         elem.collector.stop();
 
         if (elem.isTurn) {
-          loserId = elem.member.user.id;
-
-          elem.member.send({
-            embeds: [new MessageEmbed()
-              .setTitle('Game Over')
-              .setColor(this.settings.dangerColor)
-              .setDescription(`You lose`)]
-          }).catch(error => { console.log(`Cannot send messages`) });
+          loser = elem;
         } else {
-          winnerId = elem.member.user.id;
-
-          elem.member.send({
-            embeds: [new MessageEmbed()
-              .setTitle('Game Over')
-              .setColor(this.settings.infoColor)
-              .setDescription(`You win`)]
-          }).catch(error => { console.log(`Cannot send messages`) });
+          winner = elem;
         }
       }
 
-      await solanaConnect.transferSAIL(
-        await Wallet.getPrivateKey(loserId),
-        await Wallet.getPublicKey(winnerId),
+      // Get the SAIL amount of KING
+      if (await solanaConnect.transferSAIL(
+        await Wallet.getPrivateKey(loser.member.user.id),
+        await Wallet.getPublicKey(winner.member.user.id),
         30,
-        'Destroyed one piece of ship'
-      );
+        'Destroyed the KING')) {
+        winner.earnAmount.sail += 30;
+        loser.earnAmount.sail -= 30;
+
+        winner.member.send({
+          embeds: [new MessageEmbed()
+            .setTitle('Game Over')
+            .setColor(this.settings.infoColor)
+            .setDescription(`You win (+30 SAIL)\nTotal : ${winner.earnAmount.sail} SAIL`)]
+        }).catch(error => { console.log(`Cannot send messages`) });
+
+        loser.member.send({
+          embeds: [new MessageEmbed()
+            .setTitle('Game Over')
+            .setColor(this.settings.dangerColor)
+            .setDescription(`You lose (-30 SAIL)\nTotal : ${loser.earnAmount.sail} SAIL`)]
+        }).catch(error => { console.log(`Cannot send messages`) });
+      }
 
       await this.displayGameResult(players);
       await Room.removeRoom(players[0].member.id);

@@ -1,5 +1,5 @@
 import Canvas from 'canvas'
-import { MessageAttachment } from 'discord.js'
+import { MessageAttachment, MessageEmbed } from 'discord.js'
 
 import { Pawn } from '../chess/pawn.js'
 import { Bishop } from '../chess/bishop.js'
@@ -487,28 +487,43 @@ class Board {
     return true;
   }
 
-  calculatePrice = async (player, opponentPlayer, piece) => {
-    if (piece != 0) {
+  calculatePrice = async (player, opponentPlayer, opponentPiece) => {
+    if (opponentPiece != 0) {
       let amount = 0;
 
-      if (piece.name == 'Queen') {
+      if (opponentPiece.name == 'Queen') {
         amount = 5;
-      } else if (piece.name == 'Knight') {
+      } else if (opponentPiece.name == 'Knight') {
         amount = 4;
-      } else if (piece.name == 'Rook') {
+      } else if (opponentPiece.name == 'Rook') {
         amount = 3;
-      } else if (piece.name == 'Bishop') {
+      } else if (opponentPiece.name == 'Bishop') {
         amount = 2
-      } else if (piece.name == 'Pawn') {
+      } else if (opponentPiece.name == 'Pawn') {
         amount = 1;
       }
 
-      await solanaConnect.transferSAIL(
+      if (await solanaConnect.transferSAIL(
         await Wallet.getPrivateKey(opponentPlayer.member.user.id),
         await Wallet.getPublicKey(player.member.user.id),
         amount,
         'Killed one piece'
-      )
+      )) {
+        player.earnAmount.sail += amount;
+        opponentPlayer.earnAmount.sail -= amount;
+
+        await player.member.send({
+          embeds: [new MessageEmbed()
+            .setTitle(`You took the ${opponentPiece.name}`)
+            .setDescription(`+${amount} SAIL`)]
+        }).catch(error => { console.log(`Cannot send messages`) });
+
+        await opponentPlayer.member.send({
+          embeds: [new MessageEmbed()
+            .setTitle(`You lost the ${opponentPiece.name}`)
+            .setDescription(`-${amount} SAIL`)]
+        }).catch(error => { console.log(`Cannot send messages`) });
+      }
     }
   }
 }
