@@ -370,8 +370,8 @@ class DiscordChess {
         .setTitle('Chess Game Over')
         .setColor(this.settings.infoColor)
         .addFields(
-          { name: `Black`, value: `${players[0].member.user}`, inline: true },
-          { name: `White`, value: `${players[1].member.user}`, inline: true },
+          { name: `Black`, value: `${players[0].member.user} (${players[0].earnAmount.sail} SAIL)`, inline: true },
+          { name: `White`, value: `${players[1].member.user} (${players[1].earnAmount.sail} SAIL)`, inline: true },
         )
         .setImage(attachmentFile.url)
       ],
