@@ -89,7 +89,7 @@ client.on('messageCreate', async (message) => {
     const SAIL = await solanaConnect.getSAILBalance(account.privateKey);
 
     // convert the balance to dolar
-    const dollarValue = await PriceService.getDollarValueForSol(sol.amount);
+    const dollarValue = parseFloat(await PriceService.getDollarValueForSol(sol.amount)) + parseFloat(await PriceService.getDollarValueForGSail(gSAIL.amount)) + parseFloat(await PriceService.getDollarValueForSail(SAIL.amount));
 
     await message.author.send({
       embeds: [new MessageEmbed()
@@ -158,7 +158,7 @@ client.on('messageCreate', async (message) => {
     const SAIL = await solanaConnect.getSAILBalance(account.privateKey);
 
     // convert the balance to dolar
-    const dollarValue = await PriceService.getDollarValueForSol(sol.amount);
+    const dollarValue = parseFloat(await PriceService.getDollarValueForSol(sol.amount)) + parseFloat(await PriceService.getDollarValueForGSail(gSAIL.amount)) + parseFloat(await PriceService.getDollarValueForSail(SAIL.amount));
 
     await message.author.send({
       embeds: [new MessageEmbed()
@@ -219,7 +219,7 @@ client.on('messageCreate', async (message) => {
     const SAIL = await solanaConnect.getSAILBalance(await Wallet.getPrivateKey(message.author.id));
 
     // convert the balance to dolar
-    const dollarValue = await PriceService.getDollarValueForSol(sol.amount);
+    const dollarValue = parseFloat(await PriceService.getDollarValueForSol(sol.amount)) + parseFloat(await PriceService.getDollarValueForGSail(gSAIL.amount)) + parseFloat(await PriceService.getDollarValueForSail(SAIL.amount));
 
     await message.author.send({
       embeds: [new MessageEmbed()
