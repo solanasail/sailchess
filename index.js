@@ -169,7 +169,7 @@ client.on('messageCreate', async (message) => {
       console.log(`Cannot send messages to this user`);
     });
     return;
-  } else if (command == "help") {
+  } else if (command == "help") { // Display help
     if (message.channel.type == "DM") {
       return;
     }
@@ -186,8 +186,6 @@ client.on('messageCreate', async (message) => {
       console.log(`Cannot send messages to this user`);
     });
     return;
-  } else if (command == "test") {
-
   }
 
   if (!(await Wallet.getPrivateKey(message.author.id))) { // if you doesn't logged in
@@ -208,7 +206,7 @@ client.on('messageCreate', async (message) => {
 
   let publicKey = await Wallet.getPublicKey(message.author.id);
 
-  if (command == "balance") { // See your current available and pending balance.  
+  if (command == "balance") { // See your current available and pending balance.
     // get the balance of sol
     const sol = await solanaConnect.getSolBalance(publicKey);
 
@@ -231,6 +229,10 @@ client.on('messageCreate', async (message) => {
     });
     return;
   } else if (command == "tipsol") { // $tip <user_mention> <amount>: Tip <amount> TLO to <user_mention>
+    if (message.channel.type == "DM") {
+      return;
+    }
+
     let validation = await Utils.validateForTipping(args, desc);
     if (!validation.status) {
       await message.channel.send({
@@ -278,7 +280,7 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({
           embeds: [new MessageEmbed()
             .setColor(dangerColor)
-            .setDescription(`<@!${elem}> dosn't have the wallet`)]
+            .setDescription(`<@!${elem}> doesn't have the wallet`)]
         }).catch(error => {
           console.log(`Cannot send messages`);
         });
@@ -336,6 +338,10 @@ client.on('messageCreate', async (message) => {
     }
     return;
   } else if (command == "tipsail") {
+    if (message.channel.type == "DM") {
+      return;
+    }
+
     let validation = await Utils.validateForTipping(args, desc);
     if (!validation.status) {
       await message.channel.send({
@@ -395,7 +401,7 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({
           embeds: [new MessageEmbed()
             .setColor(dangerColor)
-            .setDescription(`<@!${elem}> dosn't have the wallet`)]
+            .setDescription(`<@!${elem}> doesn't have the wallet`)]
         }).catch(error => {
           console.log(`Cannot send messages`);
         });
@@ -453,6 +459,10 @@ client.on('messageCreate', async (message) => {
     }
     return;
   } else if (command == "tipgsail") {
+    if (message.channel.type == "DM") {
+      return;
+    }
+
     let validation = await Utils.validateForTipping(args, desc);
     if (!validation.status) {
       await message.channel.send({
@@ -513,7 +523,7 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({
           embeds: [new MessageEmbed()
             .setColor(dangerColor)
-            .setDescription(`<@!${elem}> dosn't have the wallet`)]
+            .setDescription(`<@!${elem}> doesn't have the wallet`)]
         }).catch(error => {
           console.log(`Cannot send messages`);
         });
