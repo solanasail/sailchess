@@ -87,7 +87,7 @@ class DiscordChess {
           .setImage(attachmentFile.url)
         ],
         files: [attachmentFile.attachment],
-      })
+      }).catch(error => { console.log(`Cannot send messages`) })
 
       const filter = (elem) => elem.author.id === player.member.id &&
         [`${this.settings.prefix}move`].includes(elem.content.split(" ")[0]);
@@ -136,7 +136,7 @@ class DiscordChess {
             .setImage(attachmentFile.url)
           ],
           files: [attachmentFile.attachment],
-        });
+        }).catch(error => { console.log(`Cannot send messages`) });
 
         attachmentFile = await this.board.printBoard(players[opponentIndex].suit);
         await players[opponentIndex].member.send({
@@ -147,7 +147,7 @@ class DiscordChess {
             .setImage(attachmentFile.url)
           ],
           files: [attachmentFile.attachment],
-        });
+        }).catch(error => { console.log(`Cannot send messages`) });
 
         attachmentFile = await this.board.printBoard(players[1].suit);
         await this.gameResultChannel.send({
@@ -342,7 +342,7 @@ class DiscordChess {
           .setImage(attachmentFile.url)
         ],
         files: [attachmentFile.attachment],
-      });
+      }).catch(error => { console.log(`Cannot send messages`) });
     }
 
     let attachmentFile = await this.board.printBoard(players[1].suit);
