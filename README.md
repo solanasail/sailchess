@@ -78,3 +78,4 @@ Provides the current USD value of SOL and some other price-related functions.
 #### Changes might occur which impact applications that use this tipsailbot tool.
 
 #### Licensed under the MIT License
+#### Link : https://github.com/solanasail/sailchess/blob/main/LICENSE
