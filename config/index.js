@@ -1,8 +1,10 @@
-export const CLUSTERS = {
+const CLUSTERS = {
   MAINNET: 'mainnet-beta',
-  TESTNET: 'testnet',
   DEVNET: 'devnet',
+  TESTNET: 'testnet',
 };
+
+export const ACTIVE_CLUSTER=CLUSTERS.DEVNET;
 
 export const COMMAND_PREFIX='?';
 
@@ -29,10 +31,15 @@ export const DB_USERNAME=''
 export const DB_PASSWORD=''
 export const DB_NAME='tip_sail'
 
-export const CHESS_RESULT_CHANNEL_ID='902777434036916266'
 export const GUILD_ID='892131767308386304'
+export const CHESS_RESULT_CHANNEL_ID='902777434036916266'
 
-export const EXPECTED_ROLS=[
-  '@developer',
-  '@tester'
+export const TRANSACTION_EXPLORERS = {
+  SOLSCAN:  'https://solscan.io/tx/%s' + (( ACTIVE_CLUSTER !== CLUSTERS.MAINNET ) ? `?cluster=${ACTIVE_CLUSTER}` : ''),
+  SOLANA:   'https://explorer.solana.com/tx/%s' + (( ACTIVE_CLUSTER !== CLUSTERS.MAINNET ) ? `?cluster=${ACTIVE_CLUSTER}` : ''),
+};
+
+export const EXPECTED_ROLES=[
+  'SAILOR',
+  '@everyone'
 ]

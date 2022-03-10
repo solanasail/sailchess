@@ -34,7 +34,7 @@ class DiscordChess {
           sail: 0,
           gsail: 0,
         },
-        suit: 'b',
+        suit: 'w',
         movement: 0,
       },
       // define the opponent
@@ -47,7 +47,7 @@ class DiscordChess {
           sail: 0,
           gsail: 0,
         },
-        suit: 'w',
+        suit: 'b',
         movement: 0,
       },
     ];
@@ -59,8 +59,8 @@ class DiscordChess {
         .setDescription(`Turn : ${players[0].member.user}`)
         .setColor(this.settings.infoColor)
         .addFields(
-          { name: `Black`, value: `${players[0].member.user}`, inline: true },
-          { name: `White`, value: `${players[1].member.user}`, inline: true },
+          { name: `White`, value: `${players[0].member.user}`, inline: true },
+          { name: `Black`, value: `${players[1].member.user}`, inline: true },
         )
         .setImage(attachmentFile.url)
       ],
@@ -156,8 +156,8 @@ class DiscordChess {
             .setDescription(`Turn : ${(player.isTurn ? players[opponentIndex].member.user : player.member.user)}`)
             .setColor(this.settings.infoColor)
             .addFields(
-              { name: `Black`, value: `${players[0].member.user}`, inline: true },
-              { name: `White`, value: `${players[1].member.user}`, inline: true },
+              { name: `White`, value: `${players[0].member.user}`, inline: true },
+              { name: `Black`, value: `${players[1].member.user}`, inline: true },
             )
             .setImage(attachmentFile.url)
           ],
@@ -170,13 +170,13 @@ class DiscordChess {
           await player.member.send({
             embeds: [new MessageEmbed()
               .setColor(this.settings.dangerColor)
-              .setDescription(`${color} King is danger`)]
+              .setDescription(`${color} King is under attack: Check!`)]
           }).catch(error => { console.log(`Cannot send messages`) });
 
           await players[opponentIndex].member.send({
             embeds: [new MessageEmbed()
               .setColor(this.settings.dangerColor)
-              .setDescription(`${color} King is danger`)]
+              .setDescription(`${color} King is under attack: Check!`)]
           }).catch(error => { console.log(`Cannot send messages`) });
 
           if (this.board.isGameOver((player.suit == 'w') ? 'b' : 'w')) {
@@ -352,8 +352,8 @@ class DiscordChess {
         .setDescription(`Turn : ${(players[0].isTurn ? players[0].member.user : players[1].member.user)}`)
         .setColor(this.settings.infoColor)
         .addFields(
-          { name: `Black`, value: `${players[0].member.user}`, inline: true },
-          { name: `White`, value: `${players[1].member.user}`, inline: true },
+          { name: `White`, value: `${players[0].member.user}`, inline: true },
+          { name: `Black`, value: `${players[1].member.user}`, inline: true },
         )
         .setImage(attachmentFile.url)
       ],
@@ -369,8 +369,8 @@ class DiscordChess {
         .setTitle('Chess Game Over')
         .setColor(this.settings.infoColor)
         .addFields(
-          { name: `Black`, value: `${players[0].member.user} (${players[0].earnAmount.sail} SAIL)`, inline: true },
-          { name: `White`, value: `${players[1].member.user} (${players[1].earnAmount.sail} SAIL)`, inline: true },
+          { name: `White`, value: `${players[0].member.user} (${players[0].earnAmount.sail} SAIL)`, inline: true },
+          { name: `Black`, value: `${players[1].member.user} (${players[1].earnAmount.sail} SAIL)`, inline: true },
         )
         .setImage(attachmentFile.url)
       ],
